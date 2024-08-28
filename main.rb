@@ -80,9 +80,106 @@ class LinkedList
       current_index += 1
     end
   end
+
+  def pop
+    return if @last_node.nil?
+
+    if @first_node == @last_node
+      # if there is only one node
+      @first_node = nil
+      @last_node = nil
+    else
+      # set the last node to previous node
+      @last_node = @last_node.previous_node
+      @last_node.next_node = nil # remove reference to the removed node
+    end
+  end
+
+  def contains?(value)
+    current_node = @first_node
+    while current_node
+      return true if current_node.data == value
+
+      current_node = current_node.next_node
+    end
+    false
+  end
+
+  def find(value)
+    current_index = 0
+    current_node = @first_node
+
+    while current_node
+      return current_index if current_node.data == value
+
+      current_index += 1
+      current_node = current_node.next_node
+    end
+    nil
+  end
+
+  def to_s
+    current_node = @first_node
+    string = ""
+    while current_node
+      string += "( #{current_node.data} ) -> "
+      current_node = current_node.next_node
+    end
+    "#{string}nil"
+  end
+
+  def insert_at(value, index)
+    new_node = Node.new(value)
+
+    if index == 0
+      new_node.next_node = first_node
+      first_node.previous_node = new_node if first_node
+      self.first_node = new_node
+    else
+      current_index = 0
+      current_node = first_node
+
+      while current_index < index - 1 && current_node.next_node
+        current_node = current_node.next_node
+        current_index += 1
+      end
+
+      new_node.next_node = current_node.next_node
+      new_node.previous_node = current_node
+    end
+
+    current_node.next_node.previous_node = new_node if current_node.next_node
+
+    current_node.next_node = new_node
+  end
+
+  def remove_at(index)
+    if index == 0 && first_node
+      @first_node = first_node.next_node
+      @first_node.previous_node = nil if first_node
+    else
+      current_index = 0
+      current_node = first_node
+
+      while current_index < index - 1 && current_node.next_node
+        current_index += 1
+        current_node = current_node.next_node
+      end
+
+      if current_node.next_node
+        node_to_remove = current_node.next_node
+        current_node.next_node = node_to_remove.next_node
+        node_to_remove.next_node.previous_node = current_node if node_to_remove.next_node
+      end
+    end
+  end
 end
 
 list = LinkedList.new
 list.append("once")
 list.append("upon")
-p list.at(2)
+list.append("a")
+list.append("time")
+
+list.remove_at(2)
+puts list
